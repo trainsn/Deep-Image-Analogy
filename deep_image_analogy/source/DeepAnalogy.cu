@@ -579,6 +579,13 @@ void DeepAnalogy::ComputeAnn() {
 
 	}
 
+	int pos0 = file_A.find_last_of("\\/");
+	int pos1 = file_A.find_last_of(".");
+	string name_A = file_A.substr(pos0 + 1, pos1 - pos0 - 1);
+	pos0 = file_BP.find_last_of("\\/");
+	pos1 = file_BP.find_last_of(".");
+	string name_B = file_BP.substr(pos0 + 1, pos1 - pos0 - 1);
+
 	//upsample
 	int curr_layer = numlayer - 1;
 	{
@@ -636,14 +643,14 @@ void DeepAnalogy::ComputeAnn() {
 		result_AB = reconstruct_avg(img_AL, img_BPL, ann_host_AB, sizes[curr_layer]);
 
 		cv::resize(result_AB, out, Size(), (float)ori_A_cols / cur_A_cols, (float)ori_A_rows / cur_A_rows, INTER_CUBIC);
-		sprintf(fname, "resultAB.png");
+		sprintf(fname, "%s_%s.png", name_A.c_str(), name_B.c_str());
 		imwrite(path_output + fname, out);
 
 		flow = reconstruct_dflow(img_BPL, img_AL, ann_host_BA, sizes[curr_layer]);
 		result_BA = reconstruct_avg(img_BPL, img_AL, ann_host_BA, sizes[curr_layer]);
 
 		cv::resize(result_BA, out, Size(), (float)ori_BP_cols / cur_BP_cols, (float)ori_BP_rows / cur_BP_rows, INTER_CUBIC);
-		sprintf(fname, "resultBA.png");
+		sprintf(fname, "%s_%s.png", name_B.c_str(), name_A.c_str());
 		imwrite(path_output + fname, out);
 
 		if (photoTransfer)
@@ -684,7 +691,7 @@ void DeepAnalogy::ComputeAnn() {
 	{
 		ofstream output1;
 		char fname[256];
-		sprintf(fname, "flowAB.txt");
+		sprintf(fname, "%s_%s.txt", name_A.c_str(), name_B.c_str());
 		output1.open(path_output + fname);
 		for (int y = 0; y < img_AL.rows; y++)
 		for (int x = 0; x < img_AL.cols; x++)
@@ -697,7 +704,7 @@ void DeepAnalogy::ComputeAnn() {
 		output1.close();
 
 		ofstream output2;
-		sprintf(fname, "flowBA.txt");
+		sprintf(fname, "%s_%s.txt", name_B.c_str(), name_A.c_str());
 		output2.open(path_output + fname);
 		for (int y = 0; y < img_BPL.rows; y++){
 			for (int x = 0; x < img_BPL.cols; x++)
